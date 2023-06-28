@@ -46,7 +46,5 @@ namespace QuickCampusAPI.Controllers
             };
                 return Ok(model);
         }
-
-s
     }
 }
