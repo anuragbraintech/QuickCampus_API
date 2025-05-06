@@ -11,7 +11,7 @@ public partial class MstSection
 
     public int? SortOrder { get; set; }
 
-    public int? ClentId { get; set; }
+    public int? ClientId { get; set; }
 
     public virtual ICollection<TblQuestion> TblQuestions { get; set; } = new List<TblQuestion>();
 }

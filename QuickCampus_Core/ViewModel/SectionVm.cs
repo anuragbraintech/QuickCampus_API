@@ -16,7 +16,7 @@ namespace QuickCampus_Core.ViewModel
                 SectionId=items.SectionId,
                 Section=items.Section,
                 SortOrder=items.SortOrder,
-                ClentId=items.ClentId,
+                ClientId=items.ClientId,
             };
         }
         public int SectionId { get; set; }
@@ -25,7 +25,7 @@ namespace QuickCampus_Core.ViewModel
 
         public int? SortOrder { get; set; }
 
-        public int? ClentId { get; set; }
+        public int? ClientId { get; set; }
 
         public MstSection ToSectionDbModel()
         {
@@ -33,7 +33,7 @@ namespace QuickCampus_Core.ViewModel
             {
                 Section=Section,
                 SortOrder = SortOrder,
-                ClentId=ClentId,
+                ClientId=ClientId,
             };
         }
 

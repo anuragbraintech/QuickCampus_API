@@ -105,7 +105,7 @@ namespace QuickCampusAPI.Controllers
         [Authorize(Roles = "AddUser")]
         [HttpPost]
         [Route("AddUser")]
-        public async Task<IActionResult> AddUser([FromForm] UserModel vm)
+        public async Task<IActionResult> AddUser(UserModel vm)
         {
             IGeneralResult<UserViewVm> result = new GeneralResult<UserViewVm>();
             try

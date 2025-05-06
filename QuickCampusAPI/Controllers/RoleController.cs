@@ -99,7 +99,7 @@ namespace QuickCampusAPI.Controllers
         [HttpPost]
         [Route("AddRole")]
         [Authorize(Roles = "AddRole")]
-        public async Task<IActionResult> AddRole( RoleModel vm)
+        public async Task<IActionResult> AddRole(RoleModel vm)
         {
             IGeneralResult<RoleViewVm> result = new GeneralResult<RoleViewVm>();
             try

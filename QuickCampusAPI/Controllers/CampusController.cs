@@ -131,16 +131,25 @@ namespace QuickCampusAPI.Controllers
             {
                 if (vm == null)
                 {
-                    result.Message = "Your Model request in Invalid";
+                    result.Message = "Your model request is invalid.";
                     return Ok(result);
                 }
+
+                if (vm.WalkInDate < DateTime.Today)
+                {
+                    result.Message = "Walk-in Date must be greater than today's date.";
+                    return Ok(result);
+                }
+
                 var LoggedInUserId = JwtHelper.GetIdFromToken(Request.Headers["Authorization"], _jwtSecretKey);
                 var LoggedInUserClientId = JwtHelper.GetClientIdFromToken(Request.Headers["Authorization"], _jwtSecretKey);
+
                 if (LoggedInUserClientId == null || LoggedInUserClientId == "0")
                 {
                     var user = await _userRepo.GetById(Convert.ToInt32(LoggedInUserId));
                     LoggedInUserClientId = (user.ClientId == null ? "0" : user.ClientId.ToString());
                 }
+
                 var LoggedInUserRole = (await _userAppRoleRepo.GetAll(x => x.UserId == Convert.ToInt32(LoggedInUserId))).FirstOrDefault();
                 if (LoggedInUserRole != null && LoggedInUserRole.RoleId == (int)AppRole.Admin && (vm.ClientId == null || vm.ClientId.ToString() == "" || vm.ClientId == 0))
                 {
@@ -160,27 +169,36 @@ namespace QuickCampusAPI.Controllers
                     var checkclg = allCollages.Any(s => s == clg.CollegeId);
                     if (!checkclg)
                     {
-
                         result.Message = "College id " + clg.CollegeId + " does not exist";
                         return Ok(result);
                     }
 
+                    if (!TimeSpan.TryParse(clg.ExamStartTime, out TimeSpan startTime) || !TimeSpan.TryParse(clg.ExamEndTime, out TimeSpan endTime))
+                    {
+                        result.Message = $"Invalid time format for College ID {clg.CollegeId}.";
+                        return Ok(result);
+                    }
+
+                    if (endTime <= startTime)
+                    {
+                        result.Message = $"Exam end time must be greater than start time for College ID {clg.CollegeId}.";
+                        return Ok(result);
+                    }
                 }
+
                 if (!isCountryExist)
                 {
-
-                    result.Message = "Country is not exist";
+                    result.Message = "Country does not exist";
                     return Ok(result);
                 }
                 else if (!isStateExist)
                 {
-
-                    result.Message = "State is not exist";
+                    result.Message = "State does not exist";
                     return Ok(result);
                 }
                 else if (!isCityExist)
                 {
-                    result.Message = "City is Not exist ";
+                    result.Message = "City does not exist";
                     return Ok(result);
                 }
 
@@ -199,9 +217,11 @@ namespace QuickCampusAPI.Controllers
                     CreatedBy = Convert.ToInt32(LoggedInUserId),
                     Title = vm.Title,
                     PassingYear = vm.PassingYear,
-                    ClientId = (LoggedInUserRole != null && LoggedInUserRole.RoleId == (int)AppRole.Admin) ? vm.ClientId : Convert.ToInt32(LoggedInUserClientId)
-
+                    ClientId = (LoggedInUserRole != null && LoggedInUserRole.RoleId == (int)AppRole.Admin)
+                                ? vm.ClientId
+                                : Convert.ToInt32(LoggedInUserClientId)
                 };
+
                 var walkin = await _campusrepo.Add(sv);
                 vm.WalkInID = walkin.WalkInId;
 
@@ -216,13 +236,14 @@ namespace QuickCampusAPI.Controllers
                         CampusId = rec.CampusId,
                         StartDateTime = rec.StartDateTime,
                     };
+
                     var collegeWalkin = await _campusWalkinCollegeRepo.Add(campusWalkInCollege.ToDblWalinCollege());
                     rec.CampusId = collegeWalkin.CampusId;
                 }
+
                 result.IsSuccess = true;
                 result.Message = "Record Saved Successfully";
                 result.Data = vm;
-
             }
             catch (Exception ex)
             {
